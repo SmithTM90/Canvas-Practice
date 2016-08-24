@@ -1,26 +1,66 @@
-function draw() {
-  var canvas = document.getElementById('tutorial');
-  if (canvas.getContext){
-    var ctx = canvas.getContext('2d');
+var canvasDiv = document.getElementById('canvasDiv');
+var canvasWidth = 400;
+var canvasHeight = 200;
+canvas = document.createElement('canvas');
+canvas.setAttribute('width', canvasWidth);
+canvas.setAttribute('height', canvasHeight);
+canvas.setAttribute('id', 'canvas');
+canvasDiv.appendChild(canvas);
+if (typeof G_vmlCanvasManager != 'undefined') {
+  canvas = G_vmlCanvasManager.initElement(canvas);
+}
+context = canvas.getContext("2d");
 
-    for(var i=0;i<4;i++){
-      for(var j=0;j<3;j++){
-        ctx.beginPath();
-        var x = 25+j*50; // x coordinate
-        var y = 25+i*50; // y coordinate
-        var radius = 20; // Arc radius
-        var startAngle = 0; // Starting point on circle
-        var endAngle = Math.PI+(Math.PI*j)/2; // End point on circle
-        var anticlockwise = i%2==0 ? false : true; // clockwise or anticlockwise
+document.getElementById('canvas').mousedown(function(e) {
+  var mouseX = e.pageX - this.offsetLeft;
+  var mouseY = e.pageY - this.offsetTop;
 
-        ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+  paint = true;
+  addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+  redraw();
+});
 
-        if (i>1){
-          ctx.fill();
-        } else {
-          ctx.stroke();
-        }
-      }
-    }
+document.getElementById('canvas').mousemove(function(e) {
+  if(paint) {
+    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true)
   }
-};
+});
+
+document.getElementById('canvas').mouseup(function(e) {
+  paint = false;
+});
+
+document.getElementById('canvas').mouseleave(function(e) {
+  paint = false;
+});
+
+var clickX = newArray();
+var clickY = newArray();
+var clickDrag = newArray();
+var paint;
+
+function addClick(x,y,dragging) {
+  clickX.push(x);
+  clickY.push(y);
+  clickDrag.push(dragging);
+}
+
+function redraw() {
+  context.clearRect(0,0,context.canvas.width, context.canvas.height);
+
+  context.strokeStyle = "#192";
+  context.lineJoin = "round";
+  context.lineWidth = 5;
+
+  for(vari=0; i < clickX.length; i++) {
+    context.beginPath();
+    if(clickDrag[i] && i) {
+      context.moveto(clickX[i-1], clickY[i-1]);
+    } else {
+      context.moveto(clickX[i]-1, clickY[i])
+    }
+    context.lineto(clickX[i], clickY[i]);
+    context.closePath();
+    context.stroke();
+  }
+}
